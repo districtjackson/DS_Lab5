@@ -1,5 +1,22 @@
+import java.util.Deque;
+
 public class History
 {
+	class ChangeEvent{
+		boolean deletion;
+		int position;
+		String Change;
+		
+		public ChangeEvent(boolean deletion, int position, String Change) {
+			deletion = this.deletion;
+			position = this.position;
+			Change = this.Change;
+		}
+
+	}
+	
+	Deque<ChangeEvent> currentChanges;
+	Deque<ChangeEvent> pastChanges;
 
 
 
@@ -12,6 +29,9 @@ public class History
      */
    public void addEvent(boolean deletion, int position, String Change)
    {
+	   ChangeEvent event = new ChangeEvent(deletion, position, Change);
+	   currentChanges.addFirst(event);
+	   pastChanges.clear();
    }
 
 
@@ -22,6 +42,16 @@ public class History
      */
    public void undoEvent(NotePad note)
    {
+	   boolean data = hasUndoData();
+	   if (data == true) {
+		   ChangeEvent event = currentChanges.removeFirst();
+		   if (event.deletion == true) {
+			   note.insert(event.position, event.Change);
+		   }
+		   else {
+			   note.remove(event.position, event.Change.length());
+		   }
+	   }
    }
 
 
@@ -32,7 +62,7 @@ public class History
      */
    public void redoEvent(NotePad note)
    {
-   	
+   		
    }
 
     /**
@@ -40,7 +70,7 @@ public class History
      */
    public boolean hasUndoData()
    {
-       return false;
+       return currentChanges.isEmpty();
    }
 
     /**

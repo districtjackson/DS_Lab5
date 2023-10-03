@@ -1,4 +1,5 @@
 import java.util.Deque;
+import java.util.LinkedList;
 
 public class History
 {
@@ -8,15 +9,15 @@ public class History
 		String Change;
 		
 		public ChangeEvent(boolean deletion, int position, String Change) {
-			deletion = this.deletion;
-			position = this.position;
-			Change = this.Change;
+			this.deletion = deletion;
+			this.position = position;
+			this.Change = Change;
 		}
 
 	}
 	
-	Deque<ChangeEvent> currentChanges;
-	Deque<ChangeEvent> pastChanges;
+	LinkedList<ChangeEvent> currentChanges = new LinkedList<ChangeEvent>();
+	LinkedList<ChangeEvent> pastChanges = new LinkedList<ChangeEvent>();
 
 
 
@@ -42,15 +43,19 @@ public class History
      */
    public void undoEvent(NotePad note)
    {
-	   boolean data = hasUndoData();
-	   if (data == true) {
+	   if (hasUndoData()) {
+	
 		   ChangeEvent event = currentChanges.removeFirst();
+		   pastChanges.addFirst(event);
 		   if (event.deletion == true) {
 			   note.insert(event.position, event.Change);
 		   }
 		   else {
 			   note.remove(event.position, event.Change.length());
 		   }
+		   
+		   
+
 	   }
    }
 
@@ -62,7 +67,18 @@ public class History
      */
    public void redoEvent(NotePad note)
    {
-   		
+   		if(hasReDoData()) {
+   			ChangeEvent event = pastChanges.removeFirst();
+   			currentChanges.addFirst(event);
+   			if (event.deletion == true) {
+ 			   note.remove(event.position, event.Change.length());
+ 		   }
+ 		   else {
+ 			   note.insert(event.position, event.Change);
+ 		   }
+   			
+   			
+   		}
    }
 
     /**
@@ -70,7 +86,7 @@ public class History
      */
    public boolean hasUndoData()
    {
-       return currentChanges.isEmpty();
+       return !currentChanges.isEmpty();
    }
 
     /**
@@ -78,7 +94,7 @@ public class History
      */
    public boolean hasReDoData()
    {
-       return false;
+       return !pastChanges.isEmpty();
    }
 	
 
